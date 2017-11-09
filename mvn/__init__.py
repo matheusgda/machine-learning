@@ -43,4 +43,5 @@ class mvn:
     # print MLE statistics used to build normal
     def print_attributes(self):
         print("Precision Matrix:\n", self.precision)
+        print("Covariance Matrix:\n", np.linalg.inv(self.precision))
         print("Mean:\n", self.mean)
