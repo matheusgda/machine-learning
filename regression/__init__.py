@@ -17,6 +17,7 @@ class LinearRegression():
         feature_spam = np.linalg.inv(np.dot(t, basis))
         weights = np.dot(feature_spam, np.dot(t, goal)) # solve system for weights
         self.weights = np.append(weights, [])
+        self.NLL = self.compute_NLL(basis, goal)
 
 
 
@@ -38,6 +39,11 @@ class LinearRegression():
         for i in range(len(x)):
             p[i] = self.predict(x[i])
         return p
+
+    def compute_NLL(self, basis, goal):
+        n1 = np.dot(self.weights, np.dot(np.dot(basis.T, basis), self.weights))
+        n2 = np.dot(self.weights, np.dot(basis.T, goal))
+        return 0.5 * n1 - n2
 
 # def d_polinomial_basis(d, feature_length, data):
 #     basis = np.ones((len(data), 1 + (feature_length * d)))
