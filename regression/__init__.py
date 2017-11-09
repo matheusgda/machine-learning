@@ -28,11 +28,16 @@ class LinearRegression():
         for i in range(0 , feature_length): # through features
             for j in range(1, self.d + 1): # through exponents
                     basis[(i * self.d) + j - 1] = aux[i - 1] ** j
-        print(np.array(basis))
         return np.array(basis)
 
     def predict(self, x):
         return np.dot(self.weights, self.d_polinomial_vector(x))
+
+    def predict_vec(self, x):
+        p = np.zeros(len(x))
+        for i in range(len(x)):
+            p[i] = self.predict(x[i])
+        return p
 
 # def d_polinomial_basis(d, feature_length, data):
 #     basis = np.ones((len(data), 1 + (feature_length * d)))
