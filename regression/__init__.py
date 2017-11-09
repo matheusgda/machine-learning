@@ -41,9 +41,13 @@ class LinearRegression():
         return p
 
     def compute_NLL(self, basis, goal):
-        n1 = np.dot(self.weights, np.dot(np.dot(basis.T, basis), self.weights))
-        n2 = np.dot(self.weights, np.dot(basis.T, goal))
-        return 0.5 * n1 - n2
+    #     n1 = np.dot(self.weights, np.dot(np.dot(basis.T, basis), self.weights))
+    #     n2 = np.dot(self.weights, np.dot(basis.T, goal))
+    #     print(np.dot(goal.T, goal))
+    #     return 0.5 * (n1 + np.dot(goal.T, goal)) - n2[0]
+        d = np.append(goal, []) - np.dot(basis, self.weights)
+        return np.dot(d, d) * 0.5
+
 
 # def d_polinomial_basis(d, feature_length, data):
 #     basis = np.ones((len(data), 1 + (feature_length * d)))

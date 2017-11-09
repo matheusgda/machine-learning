@@ -27,6 +27,19 @@ def plot3D(x, y, z, z_lim):
     plt.show()
 
 
+
+
+def plot_multiple_curves(curves, points, labels):
+    fig = plt.figure()
+    plots = []
+    print(labels)
+    for i in range(len(curves)):
+        plots.append(plt.plot(curves[i][0], curves[i][1], label=labels[i])[0])
+    plt.legend(handles=plots)
+    plt.scatter(points[0], points[1], s=0.5)
+    plt.show()
+
+
 def data_statistics(data):
     d = data.T
     dim = len(d)
