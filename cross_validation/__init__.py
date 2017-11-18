@@ -1,6 +1,8 @@
 # code to prepare samples for training
 import numpy as np
 
+import pickle
+
 
 __all__ = ["read_data", "split_data", "random_partition",
             "select_data"]
@@ -17,12 +19,16 @@ def read_data(file, cast):
 
 
 
-def random_partition(data, testing_size, total_size):
-    ind = set(np.random.random_integers(0, total_size - 1, testing_size))
-    while len(ind) < testing_size:
-        candidate = np.random.randint(0, total_size)
-        if candidate not in ind:
-            ind.add(candidate)
+def random_partition(data, testing_size, total_size, ind=None, o_file=None):
+    if ind == None:
+        ind = set(np.random.random_integers(0, total_size - 1, testing_size))
+        while len(ind) < testing_size:
+            candidate = np.random.randint(0, total_size)
+            if candidate not in ind:
+                ind.add(candidate)
+    if o_file != None:
+        with open(o_file, "wb") as ostream:
+            pickle.dump(ind, ostream)
 
     features = len(data[0])
     training_size = total_size - testing_size

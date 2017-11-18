@@ -7,6 +7,8 @@ __all__ = ["LinearRegression"]
 
 class LinearRegression():
 
+
+    # train model computing weights for basis functions
     def __init__(self, data, d, goal):
         self.feature_length = len(data[0])
         self.d = d 
@@ -31,14 +33,18 @@ class LinearRegression():
                     basis[(i * self.d) + j - 1] = aux[i - 1] ** j
         return np.array(basis)
 
+
+    # uses the optimized computed weights to predict value of input
     def predict(self, x):
         return np.dot(self.weights, self.d_polinomial_vector(x))
+
 
     def predict_vec(self, x):
         p = np.zeros(len(x))
         for i in range(len(x)):
             p[i] = self.predict(x[i])
         return p
+
 
     def compute_NLL(self, basis, goal):
     #     n1 = np.dot(self.weights, np.dot(np.dot(basis.T, basis), self.weights))
