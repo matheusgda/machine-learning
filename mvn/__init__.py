@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.stats import multivariate_normal
 
-__all__ = ["mvn"]
+__all__ = ["MVN"]
 
-class mvn:
+class MVN:
 
 
     # initialize all variables to compute probability
@@ -35,7 +35,7 @@ class mvn:
                 np.dot(self.precision, x - self.mean)))
 
 
-    # testing function using numpy mvn model
+    # testing function using numpy MVN model
     def np_nvm(self, x):
         return multivariate_normal.pdf(x, self.mean, np.linalg.inv(self.precision))
 
@@ -45,3 +45,9 @@ class mvn:
         print("Precision Matrix:\n", self.precision)
         print("Covariance Matrix:\n", np.linalg.inv(self.precision))
         print("Mean:\n", self.mean)
+
+
+    # # gaussian prediction
+    # def predict(self, x, mean_offset):
+        
+        

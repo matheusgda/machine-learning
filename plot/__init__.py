@@ -7,7 +7,7 @@ import numpy as np
 __init__ = ["plot3D"]
 
 # obtained from: https://matplotlib.org/mpl_toolkits/mplot3d/tutorial.html
-def plot3D(x, y, z, z_lim):
+def plot3D(x, y, z, z_lim, labels):
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -20,6 +20,10 @@ def plot3D(x, y, z, z_lim):
     ax.set_zlim(0, z_lim)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+    ax.set_xlabel(labels[0])
+    ax.set_ylabel(labels[1])
+    ax.set_zlabel(labels[2])
 
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)

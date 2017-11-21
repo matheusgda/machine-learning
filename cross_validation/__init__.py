@@ -113,7 +113,3 @@ def split_data(data, testing_size, total_size, feature_columns, goal_columns):
             r_c = r_c + 1
 
     return (training[0], training[1], test[0], test[1], ind)
-
-
-
-#def select_data(data, feature_columns, goal_columns): 
