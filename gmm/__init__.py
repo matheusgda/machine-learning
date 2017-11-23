@@ -36,6 +36,21 @@ class Supervised_GMM:
         self.priors = priors / samples
 
 
+    # estimate value for the last variable using convex combination of mvn modes
+    def estimate(self, x):
+        modes = np.zeros(self.num_of_classes)
+        for mvn in range(len(self.mixture_models)):
+            modes[mvn] = self.mixture_models[mvn].predict(x[1:])[0]
+        return np.dot(modes, self.priors)
+
+
+    def estimate_prob(self, x):
+        likelihoods = np.zeros(self.num_of_classes)
+        for mvn in range(len(self.mixture_models)):
+            likelihoods[mvn] = self.mixture_models[mvn].conditional_pdf(x[1:])
+        print(np.dot(likelihoods, self.priors))
+        return np.dot(likelihoods, self.priors)
+
     # compute class likelihood using gmm priors
     def class_likelihood(self, x, c):
         features = self.extract_features(x)
