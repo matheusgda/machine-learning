@@ -15,7 +15,7 @@ class IterativeClustering:
         if init is None:
             self.random_init(data, clusters)
         else:
-            self.centers = init
+            self.prototypes = init
 
         error = np.inf
         proceed = True
@@ -28,12 +28,12 @@ class IterativeClustering:
         return assignments
 
 
-    # phase: Expectation
+    # E-step
     def expect(self, data):
         return None
 
 
-    # phase Maximization
+    # M-step
     def optimize(self, data):
         return None
 
@@ -46,14 +46,15 @@ class IterativeClustering:
 
     # initialization with 
     def random_init(self, data, clusters):
-        self.centers = data[np.random.random_integers(0, len(data), clusters)]
+        self.prototypes = data[np.random.random_integers(0, len(data), clusters)]
 
 
 
 class KMeans(IterativeClustering):
 
     def __init__(self):
-        super(KMeans, self).__init__(0.0001)
+        super(KMeans, self).__init__(0.0)
+
 
     def expect(self, data):
         assignments = np.zeros(len(data), dtype=np.uint32)
@@ -61,22 +62,23 @@ class KMeans(IterativeClustering):
         for x in range(len(data)):
             dist = np.inf
             for k in range(self.clusters):
-                dist_vec = data[x] - self.centers[k]
-                dist_to_c = np.dot(dist_vec, dist_vec) ** 0.5
-                if dist_to_c ** 0.5 < dist: # update the best assignment
+                dist_to_c = np.linalg.norm(data[x] - self.prototypes[k])
+                if dist_to_c < dist: # update the best assignment
                     dist = dist_to_c
                     assignments[x] = k
-            acceptance += dist
+            acceptance += dist # update overall  metric for clustering
         return (acceptance, assignments)
 
 
-    # update cluster centers using assigned sample average
-    def optimize(self, data, assignments): 
-        centers = np.zeros((len(self.centers), len(data[0])))
-        counters = np.zeros(len(self.centers))
+    # update cluster prototypes using assigned sample average
+    def optimize(self, data, assignments):
+        prototypes = np.zeros((len(self.prototypes), len(data[0])))
+        counters = np.zeros(len(self.prototypes))
         for i in range(len(data)):
-            centers[assignments[i]] += data[i]
+            prototypes[assignments[i]] += data[i]
             counters[assignments[i]] += 1
-        for i in range(len(centers)):
-            centers[i] /= counters[i]
-        self.centers = centers
+        for i in range(len(prototypes)):
+            self.prototypes[i] = prototypes[i] / counters[i]
+
+
+class EMGMM(IterativeClustering)
