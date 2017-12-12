@@ -28,7 +28,6 @@ class HiddenMarkovModel:
 
     # look backwards from the future
     def beta(self, sequence):
-        print(sequence, np.flip(sequence, 0), "addsf")
         return self.state_probability(np.flip(sequence, 0), lambda k: self.m[k])
 
 
