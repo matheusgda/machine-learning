@@ -10,47 +10,99 @@ class HiddenMarkovModel:
         self.states = len(state_labels)
 
 
-
     # dynamic programming implmentation to be reused by alpha and beta
-    def state_probability(self, sequence, sel_fun):
+    #  sel_fun gets transition probabilities for states
+    def dynamic_probability(self, sequence, sel_fun, prior=None):
         T = len(sequence)
-        values = np.zeros((T, self.states))
-        values[0] = self.e[sequence[0]] # uses emissions of first observation
-        for t in range(1, T):
+        state_probability = np.ones((T + 1, self.states))
+
+        # initializing accepting a prior distribution
+        if prior is None:
+            state_probability[0] = state_probability[0] / self.states
+        else:
+            state_probability[0] = prior
+
+        #state_probability[0] = self.e[sequence[0]] # uses emissions of first observation
+        for t in range(1, T + 1):
+            t_a = t - 1
+            o = sequence[t_a]
+            probs = state_probability[t_a] # previous alpha
             for k in range(self.states):
-                o = sequence[t]
                 transition_prob = sel_fun(k) # get transition vector
-                probs = values[t-1] # previous alpha
                 emission_prob = self.e[o][k]
-                values[t][k] = emission_prob * np.dot(transition_prob, probs)
-        return values[T - 1]
+                state_probability[t][k] = emission_prob * np.dot(transition_prob, probs)
+        return state_probability[T]
+
+
+    # dynamic programming approach to solve optimum sequence query
+    def query_hidden_sequence(self, sequence, prior=None):
+        prior_d = prior # allows user defined prior
+        T = len(sequence)
+        if prior is None:
+             prior_d = np.multiply(np.ones(self.states) / self.states, self.e[sequence[0]])
+        delta = np.zeros((T, self.states))
+        delta[0] = prior_d
+        solutions = np.zeros((T,self.states), dtype='i4')
+        for t in range(1, T):
+            max_v = np.zeros(self.states)
+            for k in range(self.states): # compute inner delta for all states
+                val = np.multiply(self.m[k], delta[t-1])
+                arg = np.argmax(val)
+                max_v[k] = val[arg]
+                solutions[t-1][k] = arg
+            delta[t] = np.multiply(self.e[sequence[t]], max_v)
+        return self.backtrace_solution(solutions, delta[T - 1])
 
 
     # look backwards from the future
-    def beta(self, sequence):
-        return self.state_probability(np.flip(sequence, 0), lambda k: self.m[k])
+    def beta(self, sequence, prior=None):
+        return self.dynamic_probability(np.flip(sequence, 0), lambda k: self.m[k], prior)
 
 
     # look foward from the past
-    def alpha(self, sequence):
-        return self.state_probability(sequence, lambda k: self.m[:][k])
+    def alpha(self, sequence, prior=None):
+        return self.dynamic_probability(sequence, lambda k: self.m[:][k], prior)
 
 
-    # g
-    def alpha_sequence_probability(self, sequence):
-        return np.sum(self.alpha(sequence))
-
-    def beta_sequence_probability(self, sequence):
-        return np.sum(self.beta(sequence))
-
-    def state_probability_at(self, sequence, time, state):
-        return 0
+    # uses alpha to obtain the probability of the whole sequence
+    def sequence_probability_a(self, sequence, prior=None):
+        return np.sum(self.alpha(sequence, prior))
 
 
-    def most_probable_state(self, sequence, state):
-        return 0
+    # uses beta to obtain the probability of whole sequences of observations
+    def sequence_probability_b(self, sequence, prior=None):
+        return np.sum(self.beta(sequence, prior))
+
+
+    # compact method to get most probable hidden sequence using user defined labels for
+    #  states
+    def hidden_sequence(self, observations):
+        seq = list()
+        for i in self.query_hidden_sequence(observations):
+            seq.append(self.s_labels[i])
+        return seq
+
+    def state_probability_at(self, sequence, time):
+        T = len(sequence)
+
+        # note that emission probability is taken into account twice
+        alpha = self.alpha(sequence[: time + 1])
+        beta = self.beta(sequence[time: ])
+        return np.multiply(alpha, beta) / np.sum(np.multiply(alpha, beta))
 
 
 
+    def most_probable_state(self, sequence):
+        return self.s_labels[np.argmax(state)]
 
-# class DynamicProgrammer(self,)
+
+    # iterate backwards over solutions to obtain the best sequence
+    def backtrace_solution(self, solutions, delta):
+        arg = np.argmax(delta)
+        T = len(solutions)
+        seq = np.ones(T, dtype='i4')
+        for i in range(0, T):
+            j = T - i - 1
+            seq[j] = solutions[j][arg]
+            arg = seq[j]
+        return seq
