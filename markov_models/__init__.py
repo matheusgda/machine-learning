@@ -39,9 +39,9 @@ class HiddenMarkovModel:
         prior_d = prior # allows user defined prior
         T = len(sequence)
         if prior is None:
-             prior_d = np.multiply(np.ones(self.states) / self.states, self.e[sequence[0]])
-        delta = np.zeros((T, self.states))
-        delta[0] = prior_d
+             prior_d = np.ones(self.states) / self.states
+        delta = np.ones((T, self.states))
+        delta[0] = np.multiply(self.e[sequence[0]], prior_d)
         solutions = np.zeros((T,self.states), dtype='i4')
         for t in range(1, T):
             max_v = np.zeros(self.states)
@@ -76,9 +76,9 @@ class HiddenMarkovModel:
 
     # compact method to get most probable hidden sequence using user defined labels for
     #  states
-    def hidden_sequence(self, observations):
+    def hidden_sequence(self, observations, prior=None):
         seq = list()
-        for i in self.query_hidden_sequence(observations):
+        for i in self.query_hidden_sequence(observations, prior):
             seq.append(self.s_labels[i])
         return seq
 
@@ -92,8 +92,8 @@ class HiddenMarkovModel:
 
 
 
-    def most_probable_state(self, sequence):
-        return self.s_labels[np.argmax(state)]
+    def most_probable_state(self, sequence, time):
+        return self.s_labels[np.argmax(self.state_probability_at(sequence, time))]
 
 
     # iterate backwards over solutions to obtain the best sequence
