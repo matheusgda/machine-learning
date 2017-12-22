@@ -51,7 +51,7 @@ class HiddenMarkovModel:
                 max_v[k] = val[arg]
                 solutions[t-1][k] = arg
             delta[t] = np.multiply(self.e[sequence[t]], max_v)
-        return self.backtrace_solution(solutions, delta[T - 1])
+        return (self.backtrace_solution(solutions, delta[T - 1]), np.max(delta[T - 1]))
 
 
     # look backwards from the future
@@ -78,9 +78,10 @@ class HiddenMarkovModel:
     #  states
     def hidden_sequence(self, observations, prior=None):
         seq = list()
-        for i in self.query_hidden_sequence(observations, prior):
+        hs = self.query_hidden_sequence(observations, prior)
+        for i in hs[0]:
             seq.append(self.s_labels[i])
-        return seq
+        return (seq, hs[1])
 
     def state_probability_at(self, sequence, time):
         T = len(sequence)
@@ -93,7 +94,9 @@ class HiddenMarkovModel:
 
 
     def most_probable_state(self, sequence, time):
-        return self.s_labels[np.argmax(self.state_probability_at(sequence, time))]
+        states = self.state_probability_at(sequence, time)
+        arg = np.argmax(states)
+        return (self.s_labels[arg], states[arg])
 
 
     # iterate backwards over solutions to obtain the best sequence
