@@ -81,4 +81,4 @@ class KMeans(IterativeClustering):
             self.prototypes[i] = prototypes[i] / counters[i]
 
 
-class EMGMM(IterativeClustering)
+#class EMGMM(IterativeClustering)
